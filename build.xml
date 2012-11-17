@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="virtualdev-catalogue">
+
+
+	<property name="puppet.modules.location" location="${basedir}/puppet/modules" />
+	<property name="git.bin" location="C:\home\Git\bin\git.exe" />
+	
+	<target name="export-elastica">
+
+		<mkdir dir="${basedir}/lib/Elastica" />
+		
+		<mkdir dir="${basedir}/tmp" />
+		<git-clone repository="git://github.com/ruflin/Elastica.git" dest="${basedir}/tmp" />
+		
+		
+		<copy todir="${basedir}/lib/Elastica">
+			<fileset dir="${basedir}/tmp/lib/Elastica" />
+		</copy>
+		
+		<copy file="${basedir}/tmp/README.markdown" tofile="${basedir}/lib/Elastica/README.markdown" />
+		
+		<delete dir="${basedir}/tmp" />
+		
+
+	</target>
+	
+	<macrodef name = "git">
+    <attribute name = "command" />
+    <attribute name = "dir" default = "" />
+    <element name = "args" optional = "true" />
+    <sequential>
+        <echo message = "git @{command}" />
+        <exec executable = "${git.bin}" dir = "@{dir}">
+            <arg value = "@{command}" />
+            <args/>
+        </exec>
+    </sequential>
+	</macrodef>
+	
+	<macrodef name = "git-clone">
+    <attribute name = "repository" />
+    <attribute name = "dest" />
+    <sequential>
+        <git command = "clone">
+            <args>
+                <arg value = "@{repository}" />
+                <arg value = "@{dest}" />
+            </args>
+        </git>
+    </sequential>
+	</macrodef>
+	
+	<macrodef name = "git-export">
+    <attribute name = "repository" />
+    <attribute name = "dest" />
+    <sequential>
+    
+    		<mkdir dir="${basedir}/tmp" />
+    		<mkdir dir="@{dest}" />
+    		
+    		<git-clone repository="@{repository}" dest="${basedir}/tmp" />
+    		
+			<delete file="${basedir}/tmp/README.md" />
+    		
+    		<copy todir="@{dest}">
+				<fileset dir="${basedir}/tmp" />
+			</copy>
+			
+			<delete dir="${basedir}/tmp" />
+			
+
+    </sequential>
+	</macrodef>
+	
+	<macrodef name = "git-clone-pull">
+    <attribute name = "repository" />
+    <attribute name = "dest" />
+    <sequential>
+        <git command = "clone">
+            <args>
+                <arg value = "@{repository}" />
+                <arg value = "@{dest}" />
+            </args>
+        </git>
+        <git command = "pull" dir = "@{dest}" />
+    </sequential>
+	</macrodef>
+
+</project>
