@@ -21,7 +21,7 @@ class AbilityToSearchByQueryTest extends PHPUnit_Framework_TestCase
 		parent::setUp();
 		
 		// connect to elastic search cluster
-		$this->_elasticaClient = new Elastica_Client();
+		$this->_elasticaClient = new Elastica_Client(array('log' => PHPUNIT_ELASTICA_LOG_FILE));
 
 		// load index
 		$elasticaIndex = $this->_elasticaClient->getIndex(self::INDEX_NAME);
