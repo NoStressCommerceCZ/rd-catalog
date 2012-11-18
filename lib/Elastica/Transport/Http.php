@@ -84,8 +84,6 @@ class Elastica_Transport_Http extends Elastica_Transport_Abstract
                 $content = $data;
             }
 
-            var_dump($content);
-            
             // Escaping of / not necessary. Causes problems in base64 encoding of files
             $content = str_replace('\/', '/', $content);
 
