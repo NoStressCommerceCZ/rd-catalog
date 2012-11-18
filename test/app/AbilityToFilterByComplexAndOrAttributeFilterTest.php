@@ -151,8 +151,8 @@ class AbilityToFilterByComplexAndOrAttributeFilterTest extends PHPUnit_Framework
 		
 		$i = 1;
 		$product_size[$i++] = 'S';
-		$product_size[$i++] = 'M';
 		$product_size[$i++] = 'L';
+		$product_size[$i++] = 'M';
 
 		$i = 1;
 		$product_age[$i++] = 'baby';
@@ -212,6 +212,7 @@ class AbilityToFilterByComplexAndOrAttributeFilterTest extends PHPUnit_Framework
           array('colour', 'White', 20),
         );
     }
+	
 	/**
      * @dataProvider providerAtomicFilter
      */
@@ -247,6 +248,168 @@ class AbilityToFilterByComplexAndOrAttributeFilterTest extends PHPUnit_Framework
 		foreach ($elasticaResultSet->getResults() as $document ) {
 			$data = $document->getData();
 			$this->assertEquals($value, $data[$attribute]);
+		}
+		
+	}
+	
+	public function providerAtomicAttributeFilter()
+    {
+        return array(
+          array('yesno', array('yes', 'no'), 100),
+          array('size', array('S', 'L'), 67),
+          array('age', array('baby', 'teenager'), 50),
+          array('colour', array('White', 'Black'), 40),
+        );
+    }
+	
+	/**
+     * @dataProvider providerAtomicAttributeFilter
+     */
+	public function testAtomicAttributeFilter($attribute, $values, $hits) {
+		
+		$elasticaIndex = $this->_elasticaClient->getIndex(self::INDEX_NAME);
+		$type = $elasticaIndex->getType(self::INDEX_TYPE);
+		
+		// search query
+		$matchAllQuery = new Elastica_Query_MatchAll();
+        
+		$filter_or = new Elastica_Filter_Or();
+		
+		foreach ($values as $value ) {
+	        $term = new Elastica_Filter_Term();
+	        $term->setTerm($attribute, $value);
+	        
+	        $filter_or->addFilter($term);
+		}
+        
+        
+        // Filtered query using the query string and a filter
+		$filteredQuery = new Elastica_Query_Filtered(
+		   $matchAllQuery,
+		   $filter_or
+		);	
+		
+		$elasticaQuery = new Elastica_Query($filteredQuery);
+
+		// let's do search 
+		$elasticaResultSet 	= $type->search($elasticaQuery);
+
+		// getting result
+		
+		// check number of hit
+		$this->assertEquals($hits, $elasticaResultSet->getTotalHits());
+		
+		//check that returned hits are matchind Attribute is Value
+		foreach ($elasticaResultSet->getResults() as $document ) {
+			$data = $document->getData();
+			$this->assertContains($data[$attribute], $values );
+		}
+		
+	}
+	
+	public function providerComplexAttributeFilter()
+    {
+        return array(
+        	
+        	array(
+        		array(
+	        		'yesno' => array('yes'),
+	        		'size' =>  array('S'),
+        		),
+        		17
+        	),
+        	
+        	array(
+        		array(
+	        		'yesno' => array('yes'),
+	        		'size' =>  array('S'),
+	        		'age' =>  array('baby'),
+	        	),
+        		9
+        	),
+        	array(
+        		array(
+	        		'yesno' => array('yes'),
+	        		'size' => array('S'),
+	        		'age' => array('baby'),
+	        		'colour' => array('Green'),
+	        	),
+        		1
+        	),
+        	array(
+        		array(
+	        		'yesno' => array('yes'),
+	        		'size' => array('S'),
+	        		'age' => array('baby'),
+	        		'colour' => array('Green', 'Yellow'),
+	        	),
+        		3
+        	),
+        	array(
+        		array(
+	        		'yesno' => array('yes'),
+	        		'size' => array('S', 'L'),
+	        		'age' => array('baby'),
+	        		'colour' => array('Green', 'Yellow'),
+	        	),
+        		6
+        	),
+        );
+    }
+	
+	/**
+     * @dataProvider providerComplexAttributeFilter
+     */
+	public function testComplexAttributeFilter($attributes, $hits) {
+		
+		$elasticaIndex = $this->_elasticaClient->getIndex(self::INDEX_NAME);
+		
+		$type = $elasticaIndex->getType(self::INDEX_TYPE);
+		
+		// search query
+		$matchAllQuery = new Elastica_Query_MatchAll();
+        
+		$filter_and = new Elastica_Filter_And();
+		
+		foreach ($attributes as $attribute => $values) {
+		
+			$filter_or = new Elastica_Filter_Or();
+			foreach ($values as $value ) {
+		        $term = new Elastica_Filter_Term();
+		        $term->setTerm($attribute, $value);
+		        
+		        $filter_or->addFilter($term);
+			}
+			
+			$filter_and->addFilter($filter_or);
+		}
+        
+        
+        // Filtered query using the query string and a filter
+		$filteredQuery = new Elastica_Query_Filtered(
+		   $matchAllQuery,
+		   $filter_and
+		);	
+		
+		$elasticaQuery = new Elastica_Query($filteredQuery);
+
+		// let's do search 
+		$elasticaResultSet 	= $type->search($elasticaQuery);
+
+		// getting result
+		
+		// check number of hit
+		$this->assertEquals($hits, $elasticaResultSet->getTotalHits());
+		
+		
+		
+		//check that returned hits are matchind Attribute is Value
+		foreach ($elasticaResultSet->getResults() as $document ) {
+			
+			$data = $document->getData();
+			foreach ($attributes as $attribute => $values) {
+				$this->assertContains($data[$attribute], $values );
+			}
 		}
 		
 	}
