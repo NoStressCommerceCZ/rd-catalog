@@ -401,8 +401,6 @@ class AbilityToFilterByComplexAndOrAttributeFilterTest extends PHPUnit_Framework
 		// check number of hit
 		$this->assertEquals($hits, $elasticaResultSet->getTotalHits());
 		
-		
-		
 		//check that returned hits are matchind Attribute is Value
 		foreach ($elasticaResultSet->getResults() as $document ) {
 			
@@ -411,7 +409,6 @@ class AbilityToFilterByComplexAndOrAttributeFilterTest extends PHPUnit_Framework
 				$this->assertContains($data[$attribute], $values );
 			}
 		}
-		
 	}
 	
 }
