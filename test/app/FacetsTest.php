@@ -94,10 +94,6 @@ class FacetsTest extends PHPUnit_Framework_TestCase
 	        		'yesno' => array('yes'),
         		),
         		array(
-//        			'yesno' => array(
-//        				'yes'	=> 0,
-//        				'no'	=> 50
-//        			),
         			'size'	=> array(
         				'S'	=> 17,
 	        			'M'	=> 17,
@@ -106,42 +102,6 @@ class FacetsTest extends PHPUnit_Framework_TestCase
         		),
         		50
         	),
-        	
-//        	array(
-//        		array(
-//	        		'yesno' => array('yes'),
-//	        		'size' =>  array('S'),
-//	        		'age' =>  array('baby'),
-//	        	),
-//        		9
-//        	),
-//        	array(
-//        		array(
-//	        		'yesno' => array('yes'),
-//	        		'size' => array('S'),
-//	        		'age' => array('baby'),
-//	        		'colour' => array('Green'),
-//	        	),
-//        		1
-//        	),
-//        	array(
-//        		array(
-//	        		'yesno' => array('yes'),
-//	        		'size' => array('S'),
-//	        		'age' => array('baby'),
-//	        		'colour' => array('Green', 'Yellow'),
-//	        	),
-//        		3
-//        	),
-//        	array(
-//        		array(
-//	        		'yesno' => array('yes'),
-//	        		'size' => array('S', 'L'),
-//	        		'age' => array('baby'),
-//	        		'colour' => array('Green', 'Yellow'),
-//	        	),
-//        		6
-//        	),
         );
     }
 	
@@ -204,9 +164,6 @@ class FacetsTest extends PHPUnit_Framework_TestCase
 		
 		// check number facet
 		$elasticaFacets = $elasticaResultSet->getFacets();
-		
-		$log = new Elastica_Log($this->_elasticaClient);
-		$log->log(var_export($elasticaFacets, 1));
 		
 		$this->assertEquals(count($elasticaFacets), count($facets));
 		foreach ( $elasticaFacets as $found_attribute => $found_terms ) {
